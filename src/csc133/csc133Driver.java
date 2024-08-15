@@ -7,6 +7,7 @@ public class csc133Driver {
         slTTTBoard my_board = new slTTTBoard();
 
         my_board.printBoard();
+        my_board.play();
     }
 
 
