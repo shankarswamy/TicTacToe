@@ -1,278 +1,302 @@
 package mechanicsBE;
 
+import java.util.Random;
 import java.util.Scanner;
 
 public class slTTTBoard {
+    public static final int GAME_DRAW = 0, GAME_PLAYER = 1,
+                    GAME_MACHINE = 2, GAME_INCOMPLETE = 3, GAME_QUIT = 4;
+
     private final int ROW = 3, COL = 3;
-    private char[][] my_board = new char[ROW][COL];
-    private int[] row_status = {0, 0, 0};
-    private int[] col_status = {0, 0, 0};
-    private int[] diag_status = {0, 0};  // first element: lead diagonal
+    private char[][] ttt_board = new char[ROW][COL];
 
     private final char default_char = '-';
     private final char machine_char = 'X';
     private final char player_char = 'O';
     private char winner_char = default_char;
 
-     public slTTTBoard() {
-        for (int row = 0; row < my_board.length; row++) {
-            for (int col = 0; col < my_board[row].length; col++) {
-                my_board[row][col] = default_char;
+    private void init() {
+        for (int row = 0; row < ttt_board.length; row++) {
+            for (int col = 0; col < ttt_board[row].length; col++) {
+                ttt_board[row][col] = default_char;
             }  //  for (int col = 0; col < my_board[row].length; col++)
         }  //  for (int row = 0; row < my_board.length; row++)
+        winner_char = default_char;
+    }  //  private void init()
+     public slTTTBoard() {
+        init();
     }  // void slTTTBoard()
 
-    private boolean updateBoard(int row, int col, char my_c) {
-        boolean retVal = true;
-        if (my_c != machine_char  && my_c != player_char) {
-            retVal = false;
-        }
+    public void resetBoard() {
+        init();
+    }  //  public void resetBoard()
 
-        if (retVal && my_board[row][col] != default_char) {
-            retVal = false;
-        }
-
-        if (retVal) {
-            my_board[row][col] = my_c;
-        }
-
-        return retVal;
-    }  // private boolean updateBoard(int row, int col, char my_c)
-
-    private boolean isGameOver() {
+    public int[] promptReadInput() {
         boolean retVal = false;
-        // check rows:
-        for (int row = 0; row < my_board.length; row++) {
-            if (my_board[row][0] == default_char) {continue;}
-            if (my_board[row][0] == my_board[row][1] && my_board[row][1] == my_board[row][2]) {
-                winner_char = my_board[row][2];
+        Scanner my_scanner = new Scanner(System.in);
+        int row = -1, col = -1;
+        while (!retVal) {
+            System.out.print("Enter row col numbers (space separated):    ");
+            if (my_scanner.hasNextInt()) {
+                row = my_scanner.nextInt();
+                col = my_scanner.nextInt();
+                if (row < ROW && col < COL) {
+                    retVal = true;
+                }
+            } else {
+                String my_string = my_scanner.nextLine();
+                if (my_string.contains("q") || my_string.contains("Q")) {
+                    System.out.println("Good bye - come again!");
+                    return new int[]{-1, -1};
+                } else {
+                    System.out.println("Invalid input! Try again.");
+                }
+            }
+        }  // while(!retVal)
+        return new int[] {row, col};
+    }  //  promptReadInput()
+
+    private boolean playLDiag() {
+        boolean retVal = false;
+        for (int i =0; i < ttt_board.length; i++) {
+            if (ttt_board[i][i] == default_char) {
+                ttt_board[i][i] = machine_char;
                 retVal = true;
                 break;
-            }  // if (my_board[row][0] == ...)
-        }  // for (int row = 0; ...)
-
-        if (!retVal) {
-            // check along cols:
-            for (int col = 0; col < my_board.length; col++) {
-                if (my_board[0][col] == default_char) {continue;}
-                if (my_board[0][col] == my_board[1][col] && my_board[1][col] == my_board[2][col]) {
-                    winner_char = my_board[2][col];
-                    retVal = true;
-                    break;
-                }  // if (my_board[col][0] == ...)
-            }  // for (int col = 0; ...)
-        }  // if (!retVal)
-
-        // diagonals:
-        if (!retVal) {
-            // leading diagonal:
-            if ( (my_board[0][0] != default_char) &&
-                    (my_board[0][0] == my_board[1][1] && my_board[1][1] == my_board[2][2]) ) {
-                retVal = true;
-            } else {
-                // trailing diagonal
-                if ( (my_board[0][2] != default_char) &&
-                        (my_board[0][2] == my_board[1][1] && my_board[1][1] == my_board[2][0]) ) {
-                    retVal = true;
-                }
             }
-        }  //  if (!retVal)
+        }
+        return retVal;
+    }  //  boolean playLDiag(int diag)
+
+    private boolean playTDiag() {
+        boolean retVal = false;
+        int MAX_COL = 3;
+        for (int i =0; i < ttt_board.length; i++) {
+            if (ttt_board[i][MAX_COL-1-i] == default_char) {
+                ttt_board[i][MAX_COL-1-i] = machine_char;
+                retVal = true;
+                break;
+            }
+        }
+        return retVal;
+    }  //  boolean playTDiag()
+
+    private boolean playTheRow(int row) {
+        boolean retVal = false;
+        for (int col = 0; col < ttt_board[row].length; col++) {
+            if (ttt_board[row][col] == default_char) {
+                ttt_board[row][col] = machine_char;
+                retVal = true;
+                break;
+            }
+        }
+        return retVal;
+    }  //  boolean playRow(int row)
+
+    private boolean playTheCol(int col) {
+        boolean retVal = false;
+        for (int row = 0; row < ttt_board.length; row++) {
+            if (ttt_board[row][col] == default_char) {
+                ttt_board[row][col] = machine_char;
+                retVal = true;
+                break;
+            }
+        }
+        return retVal;
+    }  //  boolean playTheCol(int col)
+
+    // my_char == machine_char: play to win; my_char == player_char: play to avert losing
+    private boolean playToConclude(char my_char) {
+        boolean retVal = false;
+        if (my_char != player_char && my_char != machine_char) { return retVal;}
+        // try LD, TD, rows and columns in that order
+        if (findRepeatsLDiagonal(my_char) == 2) {
+            retVal = playLDiag();
+        }
+        if (!retVal && findRepeatsTDiagonal(my_char) == 2) {
+            retVal = playTDiag();
+        }
+        if (!retVal) {
+            for (int row = 0; row < ttt_board.length; ++row) {
+                if (findRepeatsInRow(row, my_char) != 2) { continue; }
+                retVal = playTheRow(row);
+                if (retVal) { break; }
+            }  //  for (int row = 0; row < ttt_board.length; ++row)
+        }
+        if (!retVal) {
+           for (int col = 0; col < ttt_board.length; ++col) {
+               if (findRepeatsInCol(col, my_char) != 2) { continue; }
+               retVal = playTheCol(col);
+               if (retVal) { break; }
+           }  //  for (int col = 0; col < ttt_board.length; ++col)
+        }
+
+        if ((my_char == machine_char) && retVal ) { winner_char = my_char;}
 
         return retVal;
-    }  // private boolean isGameOver()
+    }  //  private boolean playToConclude()
 
-    public int[] getInput() {
-        Scanner my_scanner = new Scanner(System.in);
-        System.out.println("Enter row  col - with space and no comma or any other character:\n");
-        int row = my_scanner.nextInt();
-        int col = my_scanner.nextInt();
-        
-        System.out.printf("you entered: (%d, %d) \n", row, col);
-
-        return new int[] {row, col};
-    }
-
-    // returns true if the game ended on wrong input:
-    public void play() {
-        boolean retVal = true;
-        int row = -1, col = -1;
-        boolean game_over = false;
-        while (!game_over) {
-            System.out.println("Enter the row and col for your entry - space (only) separated:");
-            int [] my_input = getInput();
-            if (my_input.length != 2) {
-                retVal = false;
+    private boolean playRandomPick() {
+        boolean retVal = false;
+        if (ttt_board[1][1] == default_char) {ttt_board[1][1] = machine_char; retVal = true;}
+        if (!retVal) { retVal = playLDiag(); }
+        if (!retVal) { retVal = playTDiag(); }
+        if (!retVal) {
+            // pick remaining rows in some random order:
+            Random my_rand = new Random();
+            int min = 1, max = 2;
+            int randInt = my_rand.nextInt(max) + min;
+            if (randInt == 1) {
+                retVal = playTheRow(2);
+                if (!retVal) { playTheCol(2);}
+            } else {
+                retVal = playTheCol(2);
+                if (!retVal) { playTheRow(2);}
             }
-            if (retVal) {
-                row = my_input[0];
-                col = my_input[1];
-                if (row < 0 || row >= 3 || col < 0 || col >= 3 ||
-                                my_board[row][col] != default_char) {
-                    System.out.println("Invalid row or col. Try again.");
-                    retVal = false;
-                }
-            }  //  if (retVal)
+        }  // if (!retVal)
+        return retVal;
+    }  //  private boolean playRandomPick()
 
-            if (retVal) {
-                my_board[row][col] = player_char;
-                printBoard();
-            }
-            game_over = isGameOver();
+    // Update the scores row, col, and diags for the given (row, col)
+    private boolean updateTTTBoard(int row, int col) {
+        boolean retVal = false;
+        if (ttt_board[row][col] != default_char) {
+            return retVal;
         }
-        return;
-    }  // public void play()
+        ttt_board[row][col] = player_char;
+        retVal = playToConclude(machine_char);
+        if (!retVal) { retVal = playToConclude(player_char); }
+        if (!retVal) { retVal = playRandomPick(); }
 
-    private int findRepeatsInRow(int row, int s_type) {
-         int num_repeats = 0;
-         for (int col = 0; col < my_board[row].length; col++) {
-             if (my_board[row][col] == s_type) {
-                 ++num_repeats;
-             }
-         }
-         return num_repeats;
-    }  //  int findRepeatsInRow
 
-    private int findRepeatsInCol(int col, int s_type) {
-         int num_repeats = 0;
-         for (int row = 0; row < my_board.length; row++) {
-             if (my_board[row][col] == s_type) {
-                 ++num_repeats;
-             }
-         }  //  for (int row = 0; ...)
-
-         return num_repeats;
-    }  //  int findRepeatsInCol
+        return retVal;
+    }  // private boolean updateTTTBoard(int row, int col)
 
     private int findRepeatsLDiagonal(int s_type) {
-         int num_repeats = 0;
-         for (int row = 0; row < my_board.length; row++) {
-             if (my_board[row][row] == s_type) {
-                 ++num_repeats;
-             }
-         }
-         return num_repeats;
+        int num_repeats = 0;
+        for (int row = 0; row < ttt_board.length; row++) {
+            if (ttt_board[row][row] == s_type) {
+                ++num_repeats;
+            }
+        }
+        return num_repeats;
     }  //  private int findRepeatsLDiagonal(int s_type)
 
     private int findRepeatsTDiagonal(int s_type) {
-         int num_repeats = 0;
-         if (my_board[ROW-3][ROW-1] == s_type) { ++num_repeats;}
-         if (my_board[ROW-2][ROW-2] == s_type) { ++num_repeats;}
-         if (my_board[ROW-1][ROW-3] == s_type) { ++num_repeats;}
-         return num_repeats;
+        int num_repeats = 0;
+        if (ttt_board[ROW-3][ROW-1] == s_type) { ++num_repeats;}
+        if (ttt_board[ROW-2][ROW-2] == s_type) { ++num_repeats;}
+        if (ttt_board[ROW-1][ROW-3] == s_type) { ++num_repeats;}
+        return num_repeats;
     }  //  private int findRepeatsTDiagonal(int s_type)
 
-    // All scores: from the perspective of computer winning.  0 --> no entries in the row
-    // 1 --> two away from winning with this row, 2 --> one away from winning,
-    // 3 --> won!  -1 --> 2 away from losing this row, -2 --> one away from losing,
-    // -3 lost the row.
-    private int[] scoreARow(int row) {
-         return new int[] {findRepeatsInRow(row, player_char), findRepeatsInCol(row, machine_char)};
-    }  // private int scoreARow(int row)
-
-    private int[] scoreAColumn(int col) {
-         return new int[] {findRepeatsInCol(col, player_char),  findRepeatsInCol(col, machine_char)};
-
-    }  //  private int scoreAColumn(int co)
-
-    private int[] scoreLDiagonal() {
-         return new int[] {findRepeatsLDiagonal(player_char), findRepeatsLDiagonal(machine_char)};
-    }
-
-    private int[] scoreTDiagonal() {
-         return new int[] {findRepeatsTDiagonal(player_char), findRepeatsTDiagonal(machine_char)};
-    }
-
-    // Call this after each update of my_board:
-    private void updateRowStatus(int my_row) {
-
-        if (row_status[my_row] == 4) {return;}
-
-        int[] score;
-        // update row score
-        score = new int[] {findRepeatsInRow(my_row, player_char),
-                                findRepeatsInCol(my_row, machine_char)};
-        if (score[0] > 0 && score[1] > 0) { row_status[my_row] = 4; return;}
-        if (score[0] == 3) {row_status[my_row] = -3; return;}
-        if (score[1] == 3) {row_status[my_row] = 3; return; }
-        if ((score[0] + score[1])  == 2) {
-            if (score[0] == 0) {row_status[my_row] = 2; return;}
-            else {row_status[my_row] = -2; return;}
+    private int findRepeatsInRow(int row, int s_type) {
+        int num_repeats = 0;
+        for (int col = 0; col < ttt_board[row].length; col++) {
+            if (ttt_board[row][col] == s_type) {
+                ++num_repeats;
+            }
         }
-        else {
-            // default = 2, either player or machine == 1:
-            if (score[0] == 1) {row_status[my_row] = -1; return;}
-            else {row_status[my_row] = 1; return;}
+        return num_repeats;
+    }  //  int findRepeatsInRow
+
+    private int findRepeatsInCol(int col, int s_type) {
+        int num_repeats = 0;
+        for (int row = 0; row < ttt_board.length; row++) {
+            if (ttt_board[row][col] == s_type) {
+                ++num_repeats;
+            }
+        }  //  for (int row = 0; ...)
+
+        return num_repeats;
+    }  //  int findRepeatsInCol
+
+    private int isGameOver() {
+        int retVal = GAME_INCOMPLETE;
+        if ( (findRepeatsLDiagonal(player_char) == 3) ||
+             (findRepeatsTDiagonal(player_char) == 3) ||
+             (findRepeatsInRow(0, player_char) == 3) ||
+             (findRepeatsInRow(1, player_char) == 3) ||
+             (findRepeatsInRow(2, player_char) == 3) ||
+             (findRepeatsInCol(0, player_char) == 3) ||
+             (findRepeatsInCol(1, player_char) == 3) ||
+             (findRepeatsInCol(2, player_char) == 3) ) {
+            retVal = GAME_PLAYER; }
+        else if ( (findRepeatsLDiagonal(machine_char) == 3) ||
+             (findRepeatsTDiagonal(machine_char) == 3) ||
+             (findRepeatsInRow(0, machine_char) == 3) ||
+             (findRepeatsInRow(1, machine_char) == 3) ||
+             (findRepeatsInRow(2, machine_char) == 3) ||
+             (findRepeatsInCol(0, machine_char) == 3) ||
+             (findRepeatsInCol(1, machine_char) == 3) ||
+             (findRepeatsInCol(2, machine_char) == 3) ) {
+            retVal = GAME_MACHINE;
+        } else if ( (findRepeatsInRow(0, player_char) +
+                findRepeatsInRow(0, machine_char) == 3) &&
+                (findRepeatsInRow(1, player_char)  +
+                        findRepeatsInRow(1, machine_char) == 3) &&
+                (findRepeatsInRow(2, player_char)  +
+                        findRepeatsInRow(2, machine_char) == 3) ) {
+            retVal = GAME_DRAW;
         }
-    }  //  private void updateRowStatus(int[] row_col)
+        return retVal;
+    }  // private int isGameOver()
 
-    private void updateColStatus(int my_col) {
+    // returns true if the game ended on wrong input:
+    public int play() {
+        int retVal = GAME_INCOMPLETE;
+        int row = -1, col = -1;
+        int game_over = GAME_INCOMPLETE;
+        System.out.println("Enter the row and col for your entry - space (only) separated; type 'q' to quit");
+        while (game_over == GAME_INCOMPLETE) {
+            int [] my_input = promptReadInput();
+            if (my_input[0] < 0) {
+                // user ended the game or something went wrong: exit
+                retVal = GAME_QUIT;
+            }
+            if (retVal == GAME_INCOMPLETE) {
+                row = my_input[0];
+                col = my_input[1];
+                if (row < 0 || row >= 3 || col < 0 || col >= 3) {
+                    System.out.println("Invalid row or col. Try again.");
+                    continue;
+                }
+                if (ttt_board[row][col] != default_char) {
+                    System.out.println("That cell is already marked. Try again.");
+                    continue;
+                }
+                updateTTTBoard(row, col);
+                printBoard();
 
-         if (col_status[my_col] == 4) {return;}
+                game_over = isGameOver();
+                switch (game_over) {
+                    case GAME_PLAYER:
+                        System.out.println("Congratulations! You won!");
+                        return game_over;
+                    case GAME_MACHINE:
+                        System.out.println("You did not win this time; try again!");
+                        return game_over;
+                    case GAME_DRAW:
+                        System.out.println("Wow! Not bad - it was a draw!");
+                        return game_over;
+                    default:
+                        break;
+                }  //  switch (game_over)
+            }  //  if (retVal == GAME_INCOMPLETE)
 
-        int[] score;
-        // update row score
-        score = new int[] {findRepeatsInCol(my_col, player_char),
-                               findRepeatsInCol(my_col, machine_char)};
-        if (score[0] > 0 && score[1] > 0) { col_status[my_col] = 4; return;}
-        if (score[0] == 3) {col_status[my_col] = -3; return;}
-        if (score[1] == 3) {col_status[my_col] = 3; return; }
-        if ((score[0] + score[1])  == 2) {
-            if (score[0] == 0) {col_status[my_col] = 2; return;}
-            else {col_status[my_col] = -2; return;}
+        }  //  while (game_over == GAME_INCOMPLETE)
+
+        if (winner_char == player_char) {
+            System.out.println("Game over. You have won! Give me a chance to win: play again!");
+            init();
+            play();
         }
-        else {
-            // default = 2, either player or machine == 1:
-            if (score[0] == 1) {col_status[my_col] = -1; return;}
-            else {col_status[my_col] = 1; return;}
-        }
-    }  //  private void updateColStatus(int[] row_col)
 
-    private void updateLDiagonalStatus() {
-
-        final int LD = 0; // "Leading Diagonal"
-        if (diag_status[LD] == 4) {return;}
-
-        int[] score;
-        score = new int[] {findRepeatsLDiagonal(player_char), findRepeatsLDiagonal(machine_char)};
-        if (score[0] > 0 && score[1] > 0) { diag_status[LD] = 4; return;}
-        if (score[0] == 3) {diag_status[LD] = -3; return;}
-        if (score[1] == 3) {diag_status[LD] = 3; return; }
-        if ((score[0] + score[1])  == 2) {
-            if (score[0] == 0) {diag_status[LD] = 2; return;}
-            else {diag_status[LD] = -2; return;}
-        }
-        else {
-            // default = 2, either player or machine == 1:
-            if (score[0] == 1) {diag_status[LD] = -1; return;}
-            else {diag_status[LD] = 1; return;}
-        }
-    }  //  private void updateLDiagonalStatus()
-
-    private void updateTDiagonalStatus() {
-        final int TD = 1; // "Leading Diagonal"
-        if (diag_status[TD] == 4) {return;}
-
-        int[] score;
-        score = new int[] {findRepeatsLDiagonal(player_char), findRepeatsLDiagonal(machine_char)};
-        if (score[0] > 0 && score[1] > 0) { diag_status[TD] = 4; return;}
-        if (score[0] == 3) {diag_status[TD] = -3; return;}
-        if (score[1] == 3) {diag_status[TD] = 3; return; }
-        if ((score[0] + score[1])  == 2) {
-            if (score[0] == 0) {diag_status[TD] = 2; return;}
-            else {diag_status[TD] = -2; return;}
-        }
-        else {
-            // default = 2, either player or machine == 1:
-            if (score[0] == 1) {diag_status[TD] = -1; return;}
-            else {diag_status[TD] = 1; return;}
-        }
-    }  //  private void updateTDiagonalStatus()
-
-    // Return the [row, col] the computer entered for its move
-
+        return game_over;
+    }  // public int play()
 
     public void printBoard() {
-        for (char[] my_chars : my_board) {
+        for (char[] my_chars : ttt_board) {
             System.out.printf("%c   %c   %c\n\n", my_chars[0], my_chars[1], my_chars[2]);
         }  //  for (int row = 0; row < my_board.length; ++row)
     }  //  public void printBoard()
