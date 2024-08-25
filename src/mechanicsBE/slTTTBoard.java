@@ -8,9 +8,6 @@ public class slTTTBoard {
     private int[] row_status = {0, 0, 0};
     private int[] col_status = {0, 0, 0};
     private int[] diag_status = {0, 0};  // {LeadDiagonal, TrailingDiagonal}
-    // track the min/max status values for each of ldiag, tdiag, row, col:
-    int[] winning_status = new int[] {0, 0, 0, 0};
-    int[] losing_status = new int[] {0, 0, 0, 0};
 
     private final char default_char = '-';
     private final char machine_char = 'X';
@@ -185,113 +182,30 @@ public class slTTTBoard {
          return retVal;
     }  // private boolean playCol(int col_num)
 
-
-
-
-
-
-
-
-
-    private boolean computerPlay() {
-        boolean continuePlay = true;  // return value;
-        final int RR=0, CC = 1, LD=2, TD=4;
-        // row, col, LDiag, TDiag:
-
-        losing_status[LD]  = findRepeatsLDiagonal(player_char);
-        losing_status[TD]  = findRepeatsTDiagonal(player_char);
-        losing_status[RR]  = Math.min(Math.min(row_status[0], row_status[1]), row_status[2]);
-        losing_status[CC]  = Math.min(Math.min(col_status[0], col_status[1]), col_status[2]);
-
-        winning_status[LD] = findRepeatsLDiagonal(machine_char);
-        winning_status[TD] = findRepeatsTDiagonal(machine_char);
-        winning_status[RR]  = Math.max(Math.max(row_status[0], row_status[1]), row_status[2]);
-        winning_status[CC]  = Math.min(Math.max(col_status[0], col_status[1]), col_status[2]);
-
-
-        if (winning_status[RR] == 3 || winning_status[CC] == 3 ||
-                                        winning_status[LD] == 3 || winning_status[TD] == 3) {
-            winner_char = machine_char;
-            System.out.println("Game over! Winner is " + winner_char);
-            continuePlay = false;
-        } else if (losing_status[RR] == -3 || losing_status[CC] == -3 ||
-                                        losing_status[LD] == -3 || losing_status[TD] == -3) {
-            winner_char = player_char;
-            System.out.println("Game over! Winner is " + winner_char);
-            continuePlay = false;
-        }
-
-        if (continuePlay && winning_status[RR] == 2) {
-            for (int i = 0; i < ttt_board.length; i++) {
-                if (findRepeatsInRow(i, machine_char) == 2) {
-
-                    winner_char = machine_char;
-                    continuePlay = false;
-                }
-            }
-        }
-
-
-
-
-
-
-
-        return continuePlay;
-    }  //  private boolean computerPlay()
-
-    private boolean isGameOver() {
+    public int[] promptReadInput() {
         boolean retVal = false;
-        // check rows:
-        for (int row = 0; row < ttt_board.length; row++) {
-            if (ttt_board[row][0] == default_char) {continue;}
-            if (ttt_board[row][0] == ttt_board[row][1] && ttt_board[row][1] == ttt_board[row][2]) {
-                winner_char = ttt_board[row][2];
-                retVal = true;
-                break;
-            }  // if (my_board[row][0] == ...)
-        }  // for (int row = 0; ...)
-
-        if (!retVal) {
-            // check along cols:
-            for (int col = 0; col < ttt_board.length; col++) {
-                if (ttt_board[0][col] == default_char) {continue;}
-                if (ttt_board[0][col] == ttt_board[1][col] && ttt_board[1][col] == ttt_board[2][col]) {
-                    winner_char = ttt_board[2][col];
-                    retVal = true;
-                    break;
-                }  // if (my_board[col][0] == ...)
-            }  // for (int col = 0; ...)
-        }  // if (!retVal)
-
-        // diagonals:
-        if (!retVal) {
-            // leading diagonal:
-            if ( (ttt_board[0][0] != default_char) &&
-                    (ttt_board[0][0] == ttt_board[1][1] && ttt_board[1][1] == ttt_board[2][2]) ) {
-                retVal = true;
-            } else {
-                // trailing diagonal
-                if ( (ttt_board[0][2] != default_char) &&
-                        (ttt_board[0][2] == ttt_board[1][1] && ttt_board[1][1] == ttt_board[2][0]) ) {
+        Scanner my_scanner = new Scanner(System.in);
+        int row = -1, col = -1;
+        while (!retVal) {
+            System.out.print("Enter row col numbers (space separated):    ");
+            if (my_scanner.hasNextInt()) {
+                row = my_scanner.nextInt();
+                col = my_scanner.nextInt();
+                if (row < ROW && col < COL) {
                     retVal = true;
                 }
+            } else {
+                String my_string = my_scanner.nextLine();
+                if (my_string.contains("q") || my_string.contains("Q")) {
+                    System.out.println("Good bye - come again!");
+                    return new int[]{-1, -1};
+                } else {
+                    System.out.println("Invalid input! Try again.");
+                }
             }
-        }  //  if (!retVal)
-
-        return retVal;
-    }  // private boolean isGameOver()
-
-    public int[] getInput() {
-        Scanner my_scanner = new Scanner(System.in);
-        //System.out.println("Enter row  col - with space and no comma or any other character:\n");
-        int row = my_scanner.nextInt();
-        int col = my_scanner.nextInt();
-        
-        System.out.printf("you entered: (%d, %d) \n", row, col);
-
+        }  // while(!retVal)
         return new int[] {row, col};
-    }
+    }  //  promptReadInput()
 
     // returns true if the game ended on wrong input:
     public void play() {
@@ -299,10 +213,15 @@ public class slTTTBoard {
         int row = -1, col = -1;
         boolean game_over = false;
         while (!game_over) {
+            retVal = true;
             System.out.printf("Enter the row and col for your entry - space (only) separated:    ");
-            int [] my_input = getInput();
+            int [] my_input = promptReadInput();
             if (my_input.length != 2) {
                 retVal = false;
+            }
+            if (my_input[0] == -1) {
+                retVal = false;
+                return;
             }
             if (retVal) {
                 row = my_input[0];
@@ -323,18 +242,10 @@ public class slTTTBoard {
                 printBoard();
             }
 
-            game_over = isGameOver();
+            //game_over = isGameOver();
         }
         return;
     }  // public void play()
-
-
-
-    // All scores: from the perspective of computer winning.  0 --> no entries in the row
-    // 1 --> two away from winning with this row, 2 --> one away from winning,
-    // 3 --> won!  -1 --> 2 away from losing this row, -2 --> one away from losing,
-    // -3 lost the row.
-
 
     // Call this after each update of my_board:
     private void updateRowStatus(int my_row) {
