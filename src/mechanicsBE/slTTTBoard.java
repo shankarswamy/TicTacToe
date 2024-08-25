@@ -282,16 +282,30 @@ public class slTTTBoard {
         return retVal;
     }  // private boolean isGameOver()
 
-    public int[] getInput() {
+    public int[] promptReadInput() {
+        boolean retVal = false;
         Scanner my_scanner = new Scanner(System.in);
-        //System.out.println("Enter row  col - with space and no comma or any other character:\n");
-        int row = my_scanner.nextInt();
-        int col = my_scanner.nextInt();
-        
-        System.out.printf("you entered: (%d, %d) \n", row, col);
-
+        int row = -1, col = -1;
+        while (!retVal) {
+            System.out.print("Enter row col numbers (space separated):    ");
+            if (my_scanner.hasNextInt()) {
+                row = my_scanner.nextInt();
+                col = my_scanner.nextInt();
+                if (row < ROW && col < COL) {
+                    retVal = true;
+                }
+            } else {
+                String my_string = my_scanner.nextLine();
+                if (my_string.contains("q") || my_string.contains("Q")) {
+                    System.out.println("Good bye - come again!");
+                    return new int[]{-1, -1};
+                } else {
+                    System.out.println("Invalid input! Try again.");
+                }
+            }
+        }  // while(!retVal)
         return new int[] {row, col};
-    }
+    }  //  promptReadInput()
 
     // returns true if the game ended on wrong input:
     public void play() {
@@ -301,9 +315,10 @@ public class slTTTBoard {
         while (!game_over) {
             retVal = true;
             System.out.printf("Enter the row and col for your entry - space (only) separated:    ");
-            int [] my_input = getInput();
-            if (my_input.length != 2) {
+            int [] my_input = promptReadInput();
+            if (my_input.length != 2 || my_input[0] < 0) {
                 retVal = false;
+                return;
             }
             if (retVal) {
                 row = my_input[0];
