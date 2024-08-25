@@ -299,6 +299,7 @@ public class slTTTBoard {
         int row = -1, col = -1;
         boolean game_over = false;
         while (!game_over) {
+            retVal = true;
             System.out.printf("Enter the row and col for your entry - space (only) separated:    ");
             int [] my_input = getInput();
             if (my_input.length != 2) {
