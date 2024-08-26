@@ -11,10 +11,6 @@ public class csc133Driver {
 
         System.out.println("Thank you for playing! Come back to waste more of your time!");
     }
-
-
-
-
 }  // public class csc133Driver
 
 
