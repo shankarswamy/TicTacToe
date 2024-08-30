@@ -1,5 +1,6 @@
 package csc133;
 
+import com.sun.source.tree.BreakTree;
 import mechanicsBE.slTTTBoard;
 
 import static java.lang.System.exit;
@@ -9,40 +10,35 @@ public class csc133Driver {
         slTTTBoard my_board = new slTTTBoard();
 
         my_board.printBoard();
-        while (my_board.GAME_QUIT != my_board.play()) {
+        int game_status = slTTTBoard.GAME_INCOMPLETE;
+        while (my_board.GAME_QUIT != game_status) {
+            print_exit_message(game_status);
             my_board.resetBoard();
+            game_status = my_board.play();
         }
 
-        int game_status = slTTTBoard.GAME_INCOMPLETE;
-        while (game_status != my_board.GAME_QUIT) {
-            game_status = my_board.play();
-            if (game_status == my_board.GAME_QUIT) {
-                break;
-            } else if (askToContinue()) {
-                continue;
-            } else {
-                    break;
-            }  // switch (game_status)
-        }  // while (end_game)
-    }
+        print_exit_message(game_status);
+    }  // public static void main(String[] args)
 
-    private static boolean askToContinue() {
-        boolean retVal = false;
-        System.out.printf("Would you like to play again? (y/n): ");
-        java.util.Scanner myScanner = new java.util.Scanner(System.in);
-        while (true) {
-            if (myScanner.nextLine().toLowerCase().equals("y")) {
-                retVal = true;
+    // Game has ended; display a message here based on game_status
+    private static void print_exit_message(int exit_status){
+        switch (exit_status){
+            case slTTTBoard.GAME_QUIT:
+                System.out.println("Sorry to see you go; come again!");
                 break;
-            } else if (myScanner.nextLine().toLowerCase().equals("n")) {
+            case slTTTBoard.GAME_PLAYER:
+                System.out.println("Congratulations! you have won!");
                 break;
-            } else {
-                System.out.println("Invalid input; please type \"y\" or \"n\"");
-            }
-        }  // while (true)
-        return retVal;
-    }  // boolean askToContinue()
-
+            case slTTTBoard.GAME_MACHINE:
+                System.out.println("Sorry, you did not win; try again!");
+                break;
+            case slTTTBoard.GAME_DRAW:
+                System.out.println("Hey, you almost beat me, let's try again!");
+                break;
+            default:
+                break;
+        }
+    }  //  private static void print_exit_message(int exit_status)
 
 }  // public class csc133Driver
 

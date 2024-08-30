@@ -46,7 +46,6 @@ public class slTTTBoard {
             } else {
                 String my_string = my_scanner.nextLine();
                 if (my_string.contains("q") || my_string.contains("Q")) {
-                    System.out.println("Good bye - come again!");
                     return new int[]{-1, -1};
                 } else {
                     System.out.println("Invalid input! Try again.");
@@ -246,9 +245,8 @@ public class slTTTBoard {
     public int play() {
         int retVal = GAME_INCOMPLETE;
         int row = -1, col = -1;
-        int game_over = GAME_INCOMPLETE;
-        System.out.println("Enter the row and col for your entry - space (only) separated; type 'q' to quit");
-        while (game_over == GAME_INCOMPLETE) {
+        System.out.println("Enter the row and col for your entry - (only) space separated; type 'q' to quit");
+        while (retVal == GAME_INCOMPLETE) {
             int [] my_input = promptReadInput();
             if (my_input[0] < 0) {
                 // user ended the game or something went wrong: exit
@@ -268,31 +266,17 @@ public class slTTTBoard {
                 updateTTTBoard(row, col);
                 printBoard();
 
-                game_over = isGameOver();
-                switch (game_over) {
-                    case GAME_PLAYER:
-                        System.out.println("Congratulations! You won!");
-                        return game_over;
-                    case GAME_MACHINE:
-                        System.out.println("You did not win this time; try again!");
-                        return game_over;
-                    case GAME_DRAW:
-                        System.out.println("Wow! Not bad - it was a draw!");
-                        return game_over;
-                    default:
-                        break;
-                }  //  switch (game_over)
+                retVal = isGameOver();
+                if (retVal == GAME_INCOMPLETE) {
+                    continue;
+                }  else {
+                    break;
+                }  //  //  if (game_over == GAME_INCOMPLETE) ... else .
             }  //  if (retVal == GAME_INCOMPLETE)
 
         }  //  while (game_over == GAME_INCOMPLETE)
 
-        if (winner_char == player_char) {
-            System.out.println("Game over. You have won! Give me a chance to win: play again!");
-            init();
-            play();
-        }
-
-        return game_over;
+        return retVal;
     }  // public int play()
 
     public void printBoard() {
