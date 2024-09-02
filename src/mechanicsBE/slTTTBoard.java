@@ -1,5 +1,6 @@
 package mechanicsBE;
 
+import java.util.ArrayList;
 import java.util.Random;
 import java.util.Scanner;
 
@@ -54,6 +55,28 @@ public class slTTTBoard {
         }  // while(!retVal)
         return new int[] {row, col};
     }  //  promptReadInput()
+
+    // if all cells already taken --> return false
+    public boolean playRandom() {
+        boolean retVal = false;
+        ArrayList<Integer> alTmp = new ArrayList<>();
+        for (int row = 0; row < ttt_board.length; row++) {
+            for (int col = 0; col < ttt_board[row].length; col++) {
+                if (ttt_board[row][col] == default_char) {
+                    alTmp.add(row * ttt_board.length + col);
+                }  //  if (ttt_board[row][col] == ...)
+            }  //  for (int col = 0; ...)
+        }  //  for (int row = ...)
+
+        retVal = alTmp.size() > 0;
+        if (retVal) {
+            Random my_rand = new Random();
+            int index = my_rand.nextInt(alTmp.size());
+            ttt_board[index/COL][index%COL] = machine_char;
+        }  //  if (retVal)
+
+        return retVal;
+    }
 
     private boolean playLDiag() {
         boolean retVal = false;
