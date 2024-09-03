@@ -56,28 +56,6 @@ public class slTTTBoard {
         return new int[] {row, col};
     }  //  promptReadInput()
 
-    // if all cells already taken --> return false
-    public boolean playRandom() {
-        boolean retVal = false;
-        ArrayList<Integer> alTmp = new ArrayList<>();
-        for (int row = 0; row < ttt_board.length; row++) {
-            for (int col = 0; col < ttt_board[row].length; col++) {
-                if (ttt_board[row][col] == default_char) {
-                    alTmp.add(row * ttt_board.length + col);
-                }  //  if (ttt_board[row][col] == ...)
-            }  //  for (int col = 0; ...)
-        }  //  for (int row = ...)
-
-        retVal = alTmp.size() > 0;
-        if (retVal) {
-            Random my_rand = new Random();
-            int index = my_rand.nextInt(alTmp.size());
-            ttt_board[index/COL][index%COL] = machine_char;
-        }  //  if (retVal)
-
-        return retVal;
-    }
-
     private boolean playLDiag() {
         boolean retVal = false;
         for (int i =0; i < ttt_board.length; i++) {
@@ -158,26 +136,27 @@ public class slTTTBoard {
         return retVal;
     }  //  private boolean playToConclude()
 
-    private boolean playRandomPick() {
+    // if all cells already taken --> return false
+    public boolean playRandom() {
         boolean retVal = false;
-        if (ttt_board[1][1] == default_char) {ttt_board[1][1] = machine_char; retVal = true;}
-        if (!retVal) { retVal = playLDiag(); }
-        if (!retVal) { retVal = playTDiag(); }
-        if (!retVal) {
-            // pick remaining rows in some random order:
+        ArrayList<Integer> alTmp = new ArrayList<>();
+        for (int row = 0; row < ttt_board.length; row++) {
+            for (int col = 0; col < ttt_board[row].length; col++) {
+                if (ttt_board[row][col] == default_char) {
+                    alTmp.add(row * ttt_board.length + col);
+                }  //  if (ttt_board[row][col] == ...)
+            }  //  for (int col = 0; ...)
+        }  //  for (int row = ...)
+
+        retVal = alTmp.size() > 0;
+        if (retVal) {
             Random my_rand = new Random();
-            int min = 1, max = 2;
-            int randInt = my_rand.nextInt(max) + min;
-            if (randInt == 1) {
-                retVal = playTheRow(2);
-                if (!retVal) { playTheCol(2);}
-            } else {
-                retVal = playTheCol(2);
-                if (!retVal) { playTheRow(2);}
-            }
-        }  // if (!retVal)
+            int index = my_rand.nextInt(alTmp.size());
+            ttt_board[index/COL][index%COL] = machine_char;
+        }  //  if (retVal)
+
         return retVal;
-    }  //  private boolean playRandomPick()
+    }
 
     // Update the scores row, col, and diags for the given (row, col)
     private boolean updateTTTBoard(int row, int col) {
@@ -188,7 +167,7 @@ public class slTTTBoard {
         ttt_board[row][col] = player_char;
         retVal = playToConclude(machine_char);
         if (!retVal) { retVal = playToConclude(player_char); }
-        if (!retVal) { retVal = playRandomPick(); }
+        if (!retVal) { retVal = playRandom(); }
 
 
         return retVal;

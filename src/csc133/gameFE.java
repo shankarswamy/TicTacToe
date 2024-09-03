@@ -2,30 +2,32 @@
 package csc133;
 
 import java.util.Scanner;
+import mechanicsBE.slTTTBoard;
+
+import static java.lang.System.exit;
 
 public class gameFE {
 
-    mechanicsBE.slTTTBoard my_board;
+    slTTTBoard my_board;
 
-    gameFE(mechanicsBE.slTTTBoard game_board) {
+    gameFE(slTTTBoard game_board) {
         my_board = game_board;
     }
 
     public void startGame() {
-        if (promptToStart()) {
-            my_board.playRandom();
-        }
         my_board.printBoard();
         int game_status = mechanicsBE.slTTTBoard.GAME_INCOMPLETE;
-        while (my_board.GAME_QUIT != game_status) {
+        while (mechanicsBE.slTTTBoard.GAME_QUIT != game_status) {
             print_exit_message(game_status);
             my_board.resetBoard();
+            if (promptToStart()) {
+                my_board.playRandom();
+                my_board.printBoard();
+            }
             game_status = my_board.play();
-        }
-
+        }  //  while (...)
         print_exit_message(game_status);
         // Game has ended; display a message here based on game_status
-
     }  // public static void startGame()
 
     //  return true --> machine; false --> player
@@ -39,22 +41,26 @@ public class gameFE {
             if (inChar == 'n' || inChar == 'y') {
                 retVal = (inChar == 'n');
             }  //  if (inChar == 'n' || inChar == 'y')
-        }
+            if (inChar == 'q') {
+                print_exit_message(slTTTBoard.GAME_QUIT);
+                exit(0);
+            }
+        }  // if (my_scanner.hasNext())
         return retVal;
     }  //  boolean promptToStart()
 
     private static void print_exit_message ( int exit_status){
         switch (exit_status) {
-            case mechanicsBE.slTTTBoard.GAME_QUIT:
+            case slTTTBoard.GAME_QUIT:
                 System.out.println("Sorry to see you go; come again!");
                 break;
-            case mechanicsBE.slTTTBoard.GAME_PLAYER:
+            case slTTTBoard.GAME_PLAYER:
                 System.out.println("Congratulations! you have won!");
                 break;
-            case mechanicsBE.slTTTBoard.GAME_MACHINE:
+            case slTTTBoard.GAME_MACHINE:
                 System.out.println("Sorry, you did not win; try again!");
                 break;
-            case mechanicsBE.slTTTBoard.GAME_DRAW:
+            case slTTTBoard.GAME_DRAW:
                 System.out.println("Hey, you almost beat me, let's try again!");
                 break;
             default:
