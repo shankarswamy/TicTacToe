@@ -4,9 +4,11 @@ import java.util.ArrayList;
 import java.util.Random;
 import java.util.Scanner;
 
+import csc133.spot.*;
+
+import static csc133.spot.*;
+
 public class slTTTBoard {
-    public static final int GAME_DRAW = 0, GAME_PLAYER = 1,
-                    GAME_MACHINE = 2, GAME_INCOMPLETE = 3, GAME_QUIT = 4;
 
     private final int ROW = 3, COL = 3;
     private char[][] ttt_board = new char[ROW][COL];

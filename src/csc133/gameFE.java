@@ -2,8 +2,11 @@
 package csc133;
 
 import java.util.Scanner;
-import mechanicsBE.slTTTBoard;
 
+import mechanicsBE.slTTTBoard;
+import csc133.spot.*;
+
+import static csc133.spot.*;
 import static java.lang.System.exit;
 
 public class gameFE {
@@ -16,8 +19,8 @@ public class gameFE {
 
     public void startGame() {
         my_board.printBoard();
-        int game_status = mechanicsBE.slTTTBoard.GAME_INCOMPLETE;
-        while (mechanicsBE.slTTTBoard.GAME_QUIT != game_status) {
+        int game_status = GAME_INCOMPLETE;
+        while (GAME_QUIT != game_status) {
             print_exit_message(game_status);
             my_board.resetBoard();
             if (promptToStart()) {
@@ -42,7 +45,7 @@ public class gameFE {
                 retVal = (inChar == 'n');
             }  //  if (inChar == 'n' || inChar == 'y')
             if (inChar == 'q') {
-                print_exit_message(slTTTBoard.GAME_QUIT);
+                print_exit_message(GAME_QUIT);
                 exit(0);
             }
         }  // if (my_scanner.hasNext())
@@ -51,16 +54,16 @@ public class gameFE {
 
     private static void print_exit_message ( int exit_status){
         switch (exit_status) {
-            case slTTTBoard.GAME_QUIT:
+            case GAME_QUIT:
                 System.out.println("Sorry to see you go; come again!");
                 break;
-            case slTTTBoard.GAME_PLAYER:
+            case GAME_PLAYER:
                 System.out.println("Congratulations! you have won!");
                 break;
-            case slTTTBoard.GAME_MACHINE:
+            case GAME_MACHINE:
                 System.out.println("Sorry, you did not win; try again!");
                 break;
-            case slTTTBoard.GAME_DRAW:
+            case GAME_DRAW:
                 System.out.println("Hey, you almost beat me, let's try again!");
                 break;
             default:
