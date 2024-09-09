@@ -28,7 +28,6 @@ public class csc133Driver {
             game_status = my_board.play();
         }  //  while (...)
         my_fe.promptToStart();
-        // Game has ended; display a message here based on game_status
     }  // public static void startGame()
 
 }  // public class csc133Driver
